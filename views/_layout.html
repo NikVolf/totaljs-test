@@ -8,9 +8,9 @@
 	<meta name="viewport" content="width=1024, user-scalable=yes" />
 	<meta name="robots" content="all,follow" />
 	@{css('default.css')}
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	@{head}
-	@{js('default.js')}
+	<script type="text/javascript" src="/js/lib/jquery.js"></script>
+	<script type="text/javascript" src="/js/lib/require.js" data-main="js/app.js"></script>
 	@{favicon('favicon.ico')}
 </head>
 <body>
