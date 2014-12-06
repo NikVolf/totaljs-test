@@ -2,3 +2,7 @@ default-ip                      : 127.0.0.1
 default-port                    : 8000
 
 allow-compile-js                : false
+
+default-interval-clear-resources   : 0
+
+default-interval-clear-cache       : 0

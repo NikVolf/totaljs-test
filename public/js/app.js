@@ -4,6 +4,6 @@
 define(['api/test/client'], function(testClient) {
     $.when(testClient.fetch())
         .then(function(data) {
-            alert(JSON.stringify(data))
+            $("body").html(JSON.stringify(data));
         });
 });
