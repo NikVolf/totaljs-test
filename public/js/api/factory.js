@@ -25,9 +25,29 @@ define([], function() {
         }
     }
 
+    function rpcInvoke(name, func, id, params) {
+        var deferred = $.Deferred();
+        $.ajax(
+            {
+                url: "/rpc/" + name + "/func/" + id,
+                type: "POST",
+                data: JSON.stringify(params),
+                success: function (response) {
+                    deferred.resolve(response);
+                }
+            });
+
+        return deferred.promise();
+    }
+
     return {
         getInstance: function(name) {
             return new Instance(name);
+        },
+        getRPC: function(name, func) {
+            return function(id, params) {
+                rpcInvoke(name, func, id, params);
+            }.bind(this);
         }
     }
 });

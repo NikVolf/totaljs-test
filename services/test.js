@@ -5,10 +5,11 @@
 var serviceBase = require("./base");
 var _ = require("underscore");
 
-_.extend(exports, serviceBase);
+var TestService = function() {
+    var self = serviceBase("test");
 
-var TestService = function(reference) {
-    var self = serviceBase(reference);
+    console.log("self: " + JSON.stringify(self));
+
 
     self.getItem = function (id, params) {
         return {
@@ -19,9 +20,8 @@ var TestService = function(reference) {
                 x: 0,
                 y: 5
             }
-        }
+        };
     };
-
 
     self.getItems = function (params) {
         return [
@@ -39,6 +39,15 @@ var TestService = function(reference) {
         ]
     };
 
+
+    self.actions = {
+        "confirm": {
+            displayName: "Confirm object",
+            execute: self.confirm,
+            isAvailable: canBeConfirmed
+        }
+    };
+
     self.updateItem = function (obj) {
 
     };
@@ -47,26 +56,21 @@ var TestService = function(reference) {
 
     };
 
-    self.confirm = function () {
-        this.isConfirmed = true;
-        self.updateItem(this);
+    self.confirm = function (id) {
+        var item = self.getItem(id);
+        item.isConfirmed = true;
+        self.updateItem(item);
     };
 
-    function canBeConfirmed() {
-        return !this.isConfirmed;
+    function canBeConfirmed(id) {
+        var item = self.getItem(id);
+        return !item.isConfirmed;
     }
 
-    self.actions = {
-        "confirm": {
-            displayName: "Confirm object",
-            execute: confirm,
-            isAvailable: canBeConfirmed
-        }
-    };
 
     return self;
 };
 
 TestService.isPublic = true;
 
-exports = TestService;
+module.exports = TestService;

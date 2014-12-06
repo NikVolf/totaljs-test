@@ -6,7 +6,8 @@ exports.install = function(framework) {
     framework.route('/api/{service}/{id}', restGetOne, ["get"]);
     framework.route('/api/{service}/{id}', restUpdate, ["put"]);
     framework.route('/api/{service}/{id}', restDelete, ["delete"]);
-    framework.file('/js/api/{service}/client.js', handleJS)
+    framework.route('/rpc/{service}/{method}/{id}', rpcCall, ["post"]);
+    framework.file('/js/api/{service}/client.js', handleJS);
 };
 
 var _ = require("underscore");
@@ -20,6 +21,7 @@ function resolveService(serviceReference) {
 }
 
 function restGet(serviceReference) {
+    console.log("restGet -> " + JSON.stringify(this.uri));
     var service = resolveService(serviceReference);
     this.json(service.getItems());
 }
@@ -42,6 +44,21 @@ function restDelete(serviceReference, id) {
     service.deleteItem(id);
 }
 
+function rpcCall(serviceReference, methodName, objectId) {
+    var service = resolveService(serviceReference);
+    var action = service.actions[methodName];
+    if (!action)
+        throw Error("No rpc method " + methodName + " in service " + serviceReference);
+
+    var result = action.execute(objectId, this.body);
+
+    if (!result) {
+        this.plain("");
+        return;
+    }
+
+    this.json(result);
+}
 
 var util = require("util");
 
@@ -49,6 +66,7 @@ var contentType = "application/javascript";
 
 function generateClientJS(serviceReference) {
     var service = resolveService(serviceReference);
+    console.log("Generating client for " + serviceReference + ": " + JSON.stringify(service))
     return service.generateClient();
 }
 
@@ -60,11 +78,10 @@ var noCacheHeaders = {
 
 function handleJS(req, res, isValidation) {
 
-    console.log(JSON.stringify(_.toArray(noCacheHeaders)));
-
     res.noCache();
 
     if (req.path[0] == "js" && req.path[1] == "api" && req.path[req.path.length-1] == "client.js") {
+        console.log(req.path.join("/"));
         var clientJS = generateClientJS(req.path.slice(2, req.path.length - 1).join('/'));
         this.responseContent(req, res, 200, clientJS, contentType, true, noCacheHeaders);
         return;
